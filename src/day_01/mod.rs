@@ -50,7 +50,7 @@ fn run_part2(rotations: &FileLineIterator) -> Result<u32, ()> {
     for rotation in rotations.lines() {
         let (dir, num) = rotation.split_at(1);
         let num = num.parse::<i32>().unwrap();
-        println!("Current number: {}, rotation: {}", cur_num, rotation);
+
         let new_cur_num = match dir {
             "L" => cur_num - num,
             "R" => cur_num + num,
@@ -60,7 +60,7 @@ fn run_part2(rotations: &FileLineIterator) -> Result<u32, ()> {
         if new_cur_num <= 0 && cur_num > 0 {
             zero_increment += 1;
         }
-        println!("After rotation: {}, to be added: {}", new_cur_num, zero_increment);
+
         zero_found += zero_increment;
         cur_num = mod_format(new_cur_num);
     }
