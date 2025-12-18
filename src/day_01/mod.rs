@@ -1,4 +1,5 @@
 use crate::file_reader::FileLineIterator;
+use crate::utils::part_output;
 
 const LOCK_MOD: i32 = 100;
 
@@ -8,16 +9,6 @@ fn mod_format(num: i32) -> i32 {
 
 pub fn run(part: u8) -> String {
     let rotations = FileLineIterator::new("src/day_01/input.txt").unwrap();
-    fn part_output(
-        function: fn(&FileLineIterator) -> Result<u32, ()>,
-        part: u8,
-        rotations: &FileLineIterator,
-    ) -> String {
-        match function(&rotations) {
-            Ok(result) => format!("Part {}: {:?}", part, result),
-            Err(_) => format!("Error in Part {}", part),
-        }
-    }
 
     return match part {
         1 => part_output(run_part1, part, &rotations),

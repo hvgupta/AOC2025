@@ -1,7 +1,9 @@
 use std::env;
 
 mod file_reader;
+mod utils;
 mod day_01;
+mod day_02;
 
 fn main() {
     let args: Vec<String> = env::args().collect();
@@ -16,7 +18,7 @@ fn main() {
 
     let output = match day_number.as_str() {
         "1" => day_01::run(*part),
-        // "2" => day_02::run(*part),
+        "2" => day_02::run(*part),
         // "3" => day_03::run(*part),
         // "4" => day_04::run(*part),
         // "5" => day_05::run(*part),
