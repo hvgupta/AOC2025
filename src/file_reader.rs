@@ -6,7 +6,7 @@ use std::io::{BufRead, BufReader};
 */
 
 pub struct FileLineIterator {
-    pub reader: Vec<String>,
+    reader: Vec<String>,
 }
 impl FileLineIterator {
     pub fn new(file_path: &str) -> Result<Self, std::io::Error> {
