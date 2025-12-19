@@ -1,6 +1,8 @@
 use crate::file_reader::FileLineIterator;
 use crate::utils::part_output;
 
+use std::collections::HashSet;
+
 pub fn run(part: u8) -> String {
     let lines = FileLineIterator::new("src/day_02/input.txt").unwrap();
     let first_line = &lines.lines()[0];
