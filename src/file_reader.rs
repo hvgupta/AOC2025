@@ -18,7 +18,7 @@ impl FileLineIterator {
         Ok(FileLineIterator { reader })
     }
 
-    pub fn lines(&self) -> &[String] {
+    pub fn lines(&self) -> &Vec<String> {
         &self.reader
     }
 }
