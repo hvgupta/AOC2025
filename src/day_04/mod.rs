@@ -1,8 +1,6 @@
 use crate::file_reader::FileLineIterator;
 use crate::utils::part_output;
 
-use std::collections::HashMap;
-
 const DIRS : [(i32, i32); 8] = [
     (-1, -1),
     (-1, 0),
