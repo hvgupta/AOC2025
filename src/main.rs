@@ -13,8 +13,8 @@ mod day_07;
 fn main() {
     let args: Vec<String> = env::args().collect();
 
-    if args.len() < 1 {
-        eprintln!("The code requires a day number as an argument.");
+    if args.len() < 3 {
+        eprintln!("The code a day and part number to run, e.g., 1 1 for Day 1 Part 1");
         return;
     }
 
@@ -34,7 +34,7 @@ fn main() {
         // "10" => day_10::run(*part),
         // "11" => day_11::run(*part),
         // "12" => day_12::run(*part),
-        _ => "Invalid day number".to_string(),
+        _ => "Invalid day number, the days are 1 to 12".to_string(),
     };
 
     println!("Output: {:?}", output);
