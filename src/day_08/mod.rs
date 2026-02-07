@@ -54,36 +54,27 @@ fn run_part2(
     distance_min_heap: &mut BinaryHeap<(Reverse<OrderedFloat>, u16, u16)>,
     parent: &mut Vec<u16>,
 ) -> Result<u64, ()> {
-    fn count_num_roots(parent: &mut Vec<u16>) -> u16 {
-        let mut unique_roots: HashSet<u16> = HashSet::new();
-        let n = parent.len();
 
-        for i in 0..n {
-            unique_roots.insert(find(parent, i as u16));
-        }
-
-        unique_roots.len() as u16
-    }
-
+    let mut current_len = parent.len() as u16;
     let mut last_edge: Option<(u16, u16)> = None;
 
     // Continue until all nodes are in the same component
-    while count_num_roots(parent) > 1 {
-        if let Some((Reverse(OrderedFloat(_dist)), i, j)) = distance_min_heap.pop() {
-            let mut parent_copy = parent.clone(); // Create a copy for find calls
-            let root_i = find(&mut parent_copy, i);
-            let root_j = find(&mut parent_copy, j);
+    while current_len > 1 {
+        let Some((Reverse(OrderedFloat(_dist)), i, j)) = distance_min_heap.pop() else {
+            break; // No more edges to process; break to avoid infinite loop
+        };
+
+        let mut parent_copy = parent.clone(); // Create a copy for find calls
+        let root_i = find(&mut parent_copy, i);
+        let root_j = find(&mut parent_copy, j);
+        
+        if root_i != root_j {
+            // Actually connect the components
+            parent[root_j as usize] = root_i;
             
-            if root_i != root_j {
-                // Actually connect the components
-                parent[root_j as usize] = root_i;
-                
-                // Store the coordinates of this edge (the last one we added)
-                last_edge = Some((i, j));
-            }
-        } else {
-            // Heap exhausted before all nodes connected
-            return Err(());
+            // Store the coordinates of this edge (the last one we added)
+            last_edge = Some((i, j));
+            current_len -= 1;
         }
     }
 
@@ -94,6 +85,8 @@ fn run_part2(
         Err(())
     }
 }
+
+
 fn run_part1(
     distance_min_heap: &mut BinaryHeap<(Reverse<OrderedFloat>, u16, u16)>,
     parent: &mut Vec<u16>,
