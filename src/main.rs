@@ -1,4 +1,4 @@
-use std::env;
+use std::{env, str::FromStr};
 
 mod file_reader;
 mod utils;
@@ -13,16 +13,17 @@ mod day_08;
 mod day_09;
 
 fn main() {
-    let args: Vec<String> = env::args().collect();
+    // let args: Vec<String> = env::args().collect();
 
-    if args.len() < 3 {
-        eprintln!("The code a day and part number to run, e.g., 1 1 for Day 1 Part 1");
-        return;
-    }
+    // if args.len() < 3 {
+    //     eprintln!("The code a day and part number to run, e.g., 1 1 for Day 1 Part 1");
+    //     return;
+    // }
 
-    let day_number = &args[1];
-    let part = &args[2].parse::<u8>().unwrap();
-
+    // let day_number = &args[1];
+    // let part = &args[2].parse::<u8>().unwrap();
+    let day_number = String::from_str("9").unwrap();
+    let part = &2u8;
     let output = match day_number.as_str() {
         "1" => day_01::run(*part),
         "2" => day_02::run(*part),

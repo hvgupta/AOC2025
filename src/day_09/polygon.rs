@@ -1,33 +1,11 @@
-// #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Default)]
-// pub struct Neighbours {
-//     pub right: Option<usize>,
-//     pub down: Option<usize>,
-// }
-// impl Neighbours {
-//     pub fn count(&self) -> u8 {
-//         let mut num_neighbours = 0;
-//         num_neighbours += (self.down != None) as u8;
-//         num_neighbours += (self.right != None) as u8;
-//         num_neighbours
-//     }
-// }
-
 #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub struct Coord2d {
     pub x: u32,
     pub y: u32,
-    // pub neighbours: Neighbours,
 }
 impl Coord2d {
     pub fn new(x: u32, y: u32) -> Self {
-        Coord2d {
-            x,
-            y,
-            // neighbours: Neighbours {
-            //     right: None,
-            //     down: None,
-            // },
-        }
+        Coord2d { x, y }
     }
 
     pub fn from_string(coord_string: &String) -> Self {
@@ -48,9 +26,8 @@ impl Coord2d {
     // }
 }
 
-
 #[derive(Debug, Clone, Copy, PartialEq)]
-enum Dir {
+pub enum Dir {
     DOWN,
     RIGHT,
 }
@@ -59,37 +36,55 @@ enum Dir {
 pub struct Edge<'a> {
     pub start_coord: &'a Coord2d,
     pub end_coord: &'a Coord2d,
-    dir: Dir,
+    pub dir: Dir,
 }
 impl<'a> Edge<'a> {
     pub fn new(start_coord: &'a Coord2d, end_coord: &'a Coord2d) -> Edge<'a> {
-        Edge {
-            start_coord,
-            end_coord,
-            dir: if start_coord.x == end_coord.x {
-                Dir::DOWN
+        if start_coord.x == end_coord.x {
+            let min_coord = if start_coord.y < end_coord.y {
+                start_coord
             } else {
-                Dir::RIGHT
-            },
-        }
-    }
+                end_coord
+            };
+            let max_coord = if min_coord == start_coord {
+                end_coord
+            } else {
+                start_coord
+            };
 
-    pub fn get_common_val(&self) ->&u32{
-        if self.dir == Dir::DOWN {
-            &self.start_coord.x
+            Edge {
+                start_coord: min_coord,
+                end_coord: max_coord,
+                dir: Dir::DOWN,
+            }
         } else {
-            &self.start_coord.y
+            let min_coord = if start_coord.x < end_coord.x {
+                start_coord
+            } else {
+                end_coord
+            };
+            let max_coord = if min_coord == start_coord {
+                end_coord
+            } else {
+                start_coord
+            };
+            Edge {
+                start_coord: min_coord,
+                end_coord: max_coord,
+                dir: Dir::RIGHT,
+            }
         }
     }
-
-    pub fn intersects(&self, other: &Edge)->bool{
+    
+    pub fn intersects(&self, other: &Edge) -> bool {
         if self.dir == other.dir {
             return false;
         }
 
-        self.start_coord.x < other.start_coord.x 
-            && self.end_coord.x > other.start_coord.x 
-            && self.start_coord.y > other.start_coord.y
-            && self.start_coord.y < other.end_coord.y 
+        let right_edge = if self.dir == Dir::RIGHT { self } else { other };
+        let down_edge = if self.dir == Dir::DOWN { self } else { other };
+
+        (right_edge.start_coord.x..right_edge.end_coord.x).contains(&down_edge.start_coord.x)
+            && (down_edge.start_coord.y..down_edge.end_coord.y).contains(&right_edge.start_coord.y)
     }
 }
