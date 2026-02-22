@@ -1,3 +1,5 @@
+use std::ops::Range;
+
 #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub struct Coord2d {
     pub x: u32,
@@ -20,71 +22,125 @@ impl Coord2d {
         let y_dist_mult = (self.y as i64 - other.y as i64).abs() as u64 + 1u64;
         x_dist_mult * y_dist_mult
     }
-
-    // pub fn set_neighbours(&mut self, neighbours: Neighbours) {
-    //     self.neighbours = neighbours;
-    // }
 }
 
-#[derive(Debug, Clone, Copy, PartialEq)]
+#[derive(Clone, Copy)]
 pub enum Dir {
-    DOWN,
-    RIGHT,
+    INCREASING,
+    DECREASING,
 }
 
 #[derive(Debug, Clone, Copy)]
-pub struct Edge<'a> {
-    pub start_coord: &'a Coord2d,
-    pub end_coord: &'a Coord2d,
-    pub dir: Dir,
+pub enum Edge<'a> {
+    Horizontal {
+        start_coord: &'a Coord2d,
+        end_coord: &'a Coord2d,
+    },
+    Vertical {
+        start_coord: &'a Coord2d,
+        end_coord: &'a Coord2d,
+    },
 }
-impl<'a> Edge<'a> {
-    pub fn new(start_coord: &'a Coord2d, end_coord: &'a Coord2d) -> Edge<'a> {
-        if start_coord.x == end_coord.x {
-            let min_coord = if start_coord.y < end_coord.y {
-                start_coord
-            } else {
-                end_coord
-            };
-            let max_coord = if min_coord == start_coord {
-                end_coord
-            } else {
-                start_coord
-            };
 
-            Edge {
-                start_coord: min_coord,
-                end_coord: max_coord,
-                dir: Dir::DOWN,
+impl<'a> Edge<'a> {
+    pub fn new(a: &'a Coord2d, b: &'a Coord2d) -> Result<Self, &'static str> {
+        if a.x == b.x {
+            if a.y < b.y {
+                Ok(Edge::Vertical {
+                    start_coord: a,
+                    end_coord: b,
+                })
+            } else {
+                Ok(Edge::Vertical {
+                    start_coord: b,
+                    end_coord: a,
+                })
+            }
+        } else if a.y == b.y {
+            if a.x < b.x {
+                Ok(Edge::Horizontal {
+                    start_coord: a,
+                    end_coord: b,
+                })
+            } else {
+                Ok(Edge::Horizontal {
+                    start_coord: b,
+                    end_coord: a,
+                })
             }
         } else {
-            let min_coord = if start_coord.x < end_coord.x {
-                start_coord
-            } else {
-                end_coord
-            };
-            let max_coord = if min_coord == start_coord {
-                end_coord
-            } else {
-                start_coord
-            };
-            Edge {
-                start_coord: min_coord,
-                end_coord: max_coord,
-                dir: Dir::RIGHT,
-            }
+            Err("only axis-aligned edges are supported")
         }
     }
-    
-    pub fn intersects(&self, other: &Edge) -> bool {
-        if self.dir == other.dir {
-            return false;
+
+    fn get_range(start: u32, end: u32, invalid_dir: Dir) -> Range<u32> {
+        match invalid_dir {
+            Dir::INCREASING => start..end,
+            Dir::DECREASING => (start + 1)..(end + 1),
         }
+    }
 
-        let right_edge = if self.dir == Dir::RIGHT { self } else { other };
-        let down_edge = if self.dir == Dir::DOWN { self } else { other };
+    pub fn intersects(&self, other: &Edge, invalid_direction: Dir) -> bool {
+        let (h0, h1, v0, v1) = match (self, other) {
+            (
+                Edge::Horizontal {
+                    start_coord: h0,
+                    end_coord: h1,
+                },
+                Edge::Vertical {
+                    start_coord: v0,
+                    end_coord: v1,
+                },
+            ) => {
+                if h0.x == v0.x || h0.x == v1.x {
+                    return false;
+                }
+                if h1.x == v0.x || h1.x == v1.x {
+                    return false;
+                }
+                (h0, h1, v0, v1)
+            }
+            (
+                Edge::Vertical {
+                    start_coord: v0,
+                    end_coord: v1,
+                },
+                Edge::Horizontal {
+                    start_coord: h0,
+                    end_coord: h1,
+                },
+            ) => {
+                if v0.y == h0.y || v0.y == h1.y {
+                    return false;
+                }
+                if v1.y == h0.y || v1.y == h1.y {
+                    return false;
+                }
+                (h0, h1, v0, v1)
+            }
+            _ => return false,
+        };
+        
+        let y = h0.y;
+        let x0 = h0.x;
+        let x1 = h1.x;
 
-        (right_edge.start_coord.x..right_edge.end_coord.x).contains(&down_edge.start_coord.x)
-            && (down_edge.start_coord.y..down_edge.end_coord.y).contains(&right_edge.start_coord.y)
+        let x = v0.x;
+        let y0 = v0.y;
+        let y1 = v1.y;
+        let x_range = Edge::get_range(x0, x1, invalid_direction);
+        let y_range = Edge::get_range(y0, y1, invalid_direction);
+
+        x_range.contains(&x) && y_range.contains(&y)
+    }
+
+    pub fn intersects_with_any_edges(
+        &self,
+        others: &Vec<Edge<'a>>,
+        invalid_direction: Dir,
+    ) -> bool {
+        others
+            .iter()
+            .any(|other| self.intersects(other, invalid_direction))
     }
 }
