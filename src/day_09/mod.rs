@@ -128,9 +128,14 @@ fn run_part2(coords: &mut Vec<Coord2d>) -> Result<u64, ()> {
         for end_index in (start_index + 1)..coords.len() {
             let start_coord = &coords[start_index];
             let end_coord = &coords[end_index];
-
+            if Coord2d::new(1712,48652) == *start_coord && Coord2d::new(94985,50114) == *end_coord {
+                println!("checking out of the polygon")
+            }
             if !is_rect_valid(start_coord, end_coord, &orth_edges_for_x, &orth_edges_for_y) {
                 continue;
+            }
+            if Coord2d::new(1712,48652) == *start_coord && Coord2d::new(94985,50114) == *end_coord {
+                println!("failed out of the polygon")
             }
             max_area = max(max_area, start_coord.calc_area(end_coord));
         }
